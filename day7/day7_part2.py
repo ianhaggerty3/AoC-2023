@@ -12,37 +12,6 @@ points['Q'] = 12
 points['K'] = 13
 points['A'] = 14
 
-def is_five(hand):
-    return len(set(hand)) == 1
-
-def is_four(hand):
-    hand_set = set(hand)
-    length = len(hand_set)
-    example = hand_set.pop()
-    count = hand.count(example)
-    return length == 2 and (count == 1 or count == 4)
-
-def is_full_house(hand):
-    hand_set = set(hand)
-    length = len(hand_set)
-    example = hand_set.pop()
-    count = hand.count(example)
-    return length == 2 and (count == 2 or count == 3)
-
-def is_three(hand):
-    return len(set(hand)) == 3 and max(map(lambda char: hand.count(char), set(hand))) == 3
-
-def is_two_pair(hand):
-    return len(set(hand)) == 3 and not is_three(hand)
-
-def is_pair(hand):
-    return len(set(hand)) == 4
-
-def is_high_card(hand):
-    return len(set(hand)) == 5
-
-identifiers = [is_five, is_four, is_full_house, is_three, is_two_pair, is_pair, is_high_card]
-
 def improve_hand(hand: str):
     j_count = hand.count('J')
     raw_hand = hand.replace('J', '')
@@ -51,17 +20,20 @@ def improve_hand(hand: str):
     best_wild_card = max(map(lambda char: (hand.count(char), char), set(raw_hand)), key=itemgetter(0))
     return raw_hand + j_count * best_wild_card[1]
 
+def get_max_occurrence(hand):
+    return max(map(lambda char: hand.count(char), set(hand)))
+
 def compare_hands(hand1, hand2):
-    for identifier in identifiers:
-        results = [identifier(improve_hand(hand1[0])), identifier(improve_hand(hand2[0]))]
-        if sum(results) == 2:
-            break
-        elif sum(results) == 1:
-            if results[0] is True:
-                return 1
-            else:
-                return -1
+    hand1_set = set(improve_hand(hand1[0]))
+    hand2_set = set(improve_hand(hand2[0]))
+
+    if len(hand1_set) != len(hand2_set):
+        return len(hand2_set) - len(hand1_set)
+    elif get_max_occurrence(improve_hand(hand1[0])) != get_max_occurrence(improve_hand(hand2[0])):
+        return get_max_occurrence(improve_hand(hand1[0])) - get_max_occurrence(improve_hand(hand2[0]))
     
+    # score = [15 ** (5 - i) * hand[i] for i in range(len(hand))]
+
     for char1, char2 in zip(hand1[0], hand2[0]):
         if points[char1] != points[char2]:
             return points[char1] - points[char2]
