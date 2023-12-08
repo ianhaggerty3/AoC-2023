@@ -1,6 +1,8 @@
 import sys
-from functools import cmp_to_key
 from operator import itemgetter
+import time
+
+t0 = time.time()
 
 with open(sys.argv[1], 'r') as fid:
     raw_lines = [line.strip() for line in fid.readlines()]
@@ -23,26 +25,17 @@ def improve_hand(hand: str):
 def get_max_occurrence(hand):
     return max(map(lambda char: hand.count(char), set(hand)))
 
-def compare_hands(hand1, hand2):
-    hand1_set = set(improve_hand(hand1[0]))
-    hand2_set = set(improve_hand(hand2[0]))
+def get_score(hand):
+    return sum([15 ** (5 - i) * points[hand[i]] for i in range(len(hand))])
 
-    if len(hand1_set) != len(hand2_set):
-        return len(hand2_set) - len(hand1_set)
-    elif get_max_occurrence(improve_hand(hand1[0])) != get_max_occurrence(improve_hand(hand2[0])):
-        return get_max_occurrence(improve_hand(hand1[0])) - get_max_occurrence(improve_hand(hand2[0]))
-    
-    # score = [15 ** (5 - i) * hand[i] for i in range(len(hand))]
-
-    for char1, char2 in zip(hand1[0], hand2[0]):
-        if points[char1] != points[char2]:
-            return points[char1] - points[char2]
-    
-    print('houston, we have a problem')
+def get_comp_tuple(hand):
+    improved_hand = improve_hand(hand[0])
+    return (5 - len(set(improved_hand)), get_max_occurrence(improved_hand), get_score(hand[0]))
 
 hands = [(line.split(' ')[0], int(line.split(' ')[1])) for line in raw_lines]
-
-hand_rankings = sorted(hands, key=cmp_to_key(compare_hands))
-print(hand_rankings)
+hand_rankings = sorted(hands, key=get_comp_tuple)
 
 print(sum(map(lambda item: (item[0] + 1) * item[1][1], enumerate(hand_rankings))))
+
+t1 = time.time()
+print(t1 - t0)
