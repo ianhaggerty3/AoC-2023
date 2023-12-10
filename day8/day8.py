@@ -1,5 +1,10 @@
 import sys
-from itertools import cycle
+from itertools import cycle, islice
+from functools import reduce
+from math import gcd
+import math
+from operator import mul
+
 
 with open(sys.argv[1], 'r') as fid:
     lines = [line.strip() for line in fid.readlines()]
@@ -18,7 +23,7 @@ def get_next(node, instruction):
     else:
         return node_map[node][1]
 
-def get_cycle_length(original_node):
+def get_cycle_info(original_node):
     offset_map = {}
     steps = 0
     current = original_node
@@ -27,19 +32,42 @@ def get_cycle_length(original_node):
         steps += 1
         key = (current, steps % len(instructions))
         if key in offset_map:
-            return steps - offset_map[key]
+            return key[0], offset_map[key], steps - offset_map[key]
         offset_map[key] = steps
 
-print([get_cycle_length(node) for node in currents])
+cycle_info = [get_cycle_info(node) for node in currents]
+lengths = [item[2] for item in cycle_info]
+print(lengths)
+overall_cycle = reduce(mul, lengths) // reduce(gcd, lengths)
 
-# steps = 0
-# for instruction in cycle(instructions):
-#     for i in range(len(currents)):
-#         currents[i] = get_next(currents[i], instruction)
+def get_end_states(key, start, length):
+    current = key
 
-#     steps += 1
+    ret = set()
 
-#     if all(map(lambda node: node.endswith('Z'), currents)):
-#         break
+    choices = islice(cycle(instructions), start, None)
+    for instruction, i in zip(choices, range(start, start + length)):
+        if current.endswith('Z'):
+            ret.add(i)
+        current = get_next(current, instruction)
+    
+    return ret
 
-print('still cooking')
+final_sets = [get_end_states(item[0], item[1], item[2]) for item in cycle_info]
+
+def expand_set(final_set, length, count):
+    ret = set()
+    for number in final_set:
+        for i in range(count):
+            ret.add(number + i * length)
+    
+    return ret
+
+print(overall_cycle)
+
+expanded_final_sets = [expand_set(item[0], item[1], overall_cycle // item[1]) for item in zip(final_sets, lengths)]
+
+print(expanded_final_sets)
+
+valid_final_combos = reduce(lambda a, b: a.intersection(b), expanded_final_sets)
+print(min(valid_final_combos))
