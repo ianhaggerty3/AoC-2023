@@ -12,6 +12,9 @@ def get_combinations(sequence, strips):
         else:
             return 0
 
+    if sum(strips) + len(strips) - 1 > len(sequence):
+        return 0
+
     relevant_strip = strips[0]
     total = 0
 
@@ -45,8 +48,10 @@ def get_combinations(sequence, strips):
 total = 0
 # for line in [raw_lines[5]]:
 for line in raw_lines:
-    sequence, raw_strips = line.split(' ')
-    strips = list(map(int, raw_strips.split(',')))
+    folded_sequence, raw_strips = line.split(' ')
+    folded_strips = list(map(int, raw_strips.split(',')))
+    sequence = '?'.join([folded_sequence] * 5)
+    strips = folded_strips * 5
     total += get_combinations(sequence, strips)
 
 print(total)
