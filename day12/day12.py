@@ -12,24 +12,23 @@ def get_combinations(sequence, strips):
     relevant_strip = strips[0]
     total = 0
 
-    window = deque([None] * relevant_strip)
+    window = deque(['.'] * relevant_strip)
     # loop for patterns in the middle of the sequence
     for i, token in enumerate(sequence):
-       
-        if (token == '.' or token == '?') and not any(map(lambda item: item is None or item[1] == '.', window)):
+        if (token == '.' or token == '?') and not any(map(lambda item: item == '.', window)):
             total += get_combinations(sequence[(i + 1)::], strips[1::])
-            if window[-1][1] == '#':
+            if window[-1] == '#':
                 break
 
         window.rotate(1)
-        window[0] = (i, token)
+        window[0] = token
 
     # loop (I know) for patterns at the end of the sequence
-    window = deque([None] * relevant_strip)
+    window = deque(['.'] * relevant_strip)
     for i, token in enumerate(sequence):
         window.rotate(1)
-        window[0] = (i, token)
-        if (i == len(sequence) - 1) and not any(map(lambda item: item is None or item[1] == '.', window)):
+        window[0] = token
+        if (i == len(sequence) - 1) and not any(map(lambda item: item == '.', window)):
             total += get_combinations(sequence[(i + 1)::], strips[1::])
 
     return total
