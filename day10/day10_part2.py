@@ -44,16 +44,18 @@ add_tuple = lambda a, b: tuple(map(add, a, b))
 with open(sys.argv[1], 'r') as fid:
     raw_lines = [line.strip() for line in fid.readlines()]
 
-pipe_map = [[symbol_dict[symbol] for symbol in line] for i, line in enumerate(raw_lines)]
-inside_edge_map = [[inside_edge_dict[symbol] for j, symbol in enumerate(line)] for i, line in enumerate(raw_lines)]
-all_tiles = reduce(lambda a, b: a.union(b), [{(j, i) for j, symbol in enumerate(line) if symbol == '.'} for i, line in enumerate(raw_lines)])
-
 start = (0, 0)
 for i, line in enumerate(raw_lines):
     result = line.find('S')
     if result != -1:
         start = (result, i)
         break
+
+raw_lines[start[1]] = raw_lines[start[1]].replace('S', 'L')
+pipe_map = [[symbol_dict[symbol] for symbol in line] for i, line in enumerate(raw_lines)]
+inside_edge_map = [[inside_edge_dict[symbol] for j, symbol in enumerate(line)] for i, line in enumerate(raw_lines)]
+all_tiles = reduce(lambda a, b: a.union(b), [{(j, i) for j, symbol in enumerate(line)} for i, line in enumerate(raw_lines)])
+
 
 perpendicular_directions = {
     'N': 'E',
@@ -68,9 +70,9 @@ def get_circular_path(starting_direction):
     # if you start by moving north, you entered the first pipe from the south
     current_direction = reverse_direction_dict[starting_direction]
     current_pos = add_tuple(start, direction_dict[starting_direction])
-    moves = 1
-    print(current_pos)
-    while current_pos != start:
+
+    # print(current_pos)
+    while current_pos not in ret_path:
         if current_direction not in pipe_map[current_pos[1]][current_pos[0]]:
             return None
 
@@ -78,12 +80,14 @@ def get_circular_path(starting_direction):
         perpendicular_direction = inside_edge_map[current_pos[1]][current_pos[0]][perpendicular_direction]
         # at bends, there are two inner edge directions
         ret_path[current_pos] = set([perpendicular_direction, inside_edge_map[current_pos[1]][current_pos[0]][perpendicular_direction]])
-        print(ret_path[current_pos])
+        if current_pos == start:
+            break
         current_pos = add_tuple(current_pos, direction_dict[exit_direction])
         current_direction = reverse_direction_dict[exit_direction]
-        moves += 1
         
-    
+    # L
+    # perpendicular_direction = inside_edge_dict['L'][perpendicular_direction]
+    # ret_path[start] = set([perpendicular_direction, inside_edge_dict['L'][perpendicular_direction]])
     return ret_path
 
 def check_valid_inner_assumption(path):
@@ -117,11 +121,16 @@ for starting_direction in {'N', 'S', 'E', 'W'}:
 
     print(starting_direction)
     break
-    
+
+# print(start)
+# print(path[0])
+# print(path[-1])
 
 diff = (-1, 0)
 total = 0
 for tile in all_tiles:
+    if tile in path:
+        continue
     current_coords = tile
     while current_coords[0] > 0:
         current_coords = add_tuple(diff, current_coords)
@@ -131,7 +140,6 @@ for tile in all_tiles:
             break
 
 print(total)
-print(len(all_tiles))    
 
 
 # print(max(moves_tracker) // 2)
