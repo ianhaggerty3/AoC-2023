@@ -6,53 +6,29 @@ def reverse_dict(dict):
 
 def scrunch_maps(map1, map2):
     new_map = {}
-    # need to incorporate dest into algorithm and transform indices
-    for span1, dest in map1.items():
-        diff = dest - span1.start
-        overlap = filter(lambda span2: (span2[0].start < (span1.stop + diff) and span2[0].stop > (span1.start + diff)), map2.items())
-        # print(span1)
-        # print(list(overlap))
-        # if there are duplicates, the one with the highest dest will be preferred due to the sorting
-        # no, this won't work, because dest does not normalize to zero and even if it did, there could be negative numbers
-        # print(sum(map(lambda span: [(span[0].start, span[1]), (span[0].stop - 1, span[0].stop - 1)], overlap), start=[]))
-        rangelist = sorted(sum(map(lambda span: [(span[0].start, span[1]), (span[0].stop - 1, span[0].stop - 1)], overlap), start=[]))
-        
-        # ugly 
-        # could always do the inserts, but would need to define a clamp function
-        # to really clean this up
-        if rangelist[0][0] <= span1.start:
-            rangelist[0] = (span1.start, rangelist[0][1])
-        else:
-            rangelist.insert(0, (span1.start, span1.start))
-        
-        if rangelist[-1][0] >= (span1.stop - 1):
-            rangelist[-1] = (span1.stop - 1, rangelist[-1][1])
-        else:
-            rangelist.append((span1.stop - 1, span1.stop - 1))
+    for span1, dest1 in map1.items():
+        diff = dest1 - span1.start
 
-        for i, j in zip(rangelist[0::], rangelist[1::]):
-            if i[0] != j[0]:
-                new_map[range(i[0], j[0] + 1)] = i[1]
+        # TODO: Handle blank sections
+        span_map = {}
+        for span2, dest2 in map2.items():
+            if span1.start + diff >= span2.stop or span1.stop + diff <= span2.start:
+                continue
+            new_start = max(span1.start + diff, span2.start)
+            new_stop = min(span1.stop + diff, span2.stop)
+
+            span_map[range(new_start, new_stop)] = dest2 + (new_start - span2.start)
+        
+
+        points = list(map(lambda item: item[0], span_map.keys())) + list(map(lambda item: item[0], span_map.keys()))
+        points.insert(0, span1.start + diff)
+        points.append(span1.stop + diff)
+        points = sorted(points)
+        for p1, p2 in zip(points[:], points[1:]):
+            if p1 != p2:
+                new_map[range(p1, p2)] = span_map.get(range(p1, p2), p1)
     
-    print('new map')
-    print(new_map)
     return new_map
-
-def get_seed_location(seed, lookup_list):
-    current_i = seed
-    for lookup in lookup_list:
-        new_i = None
-        for span, dest in lookup.items():
-            if current_i in span:
-                new_i = dest + (current_i - span.start)
-                break
-        
-        if new_i is None:
-            new_i = current_i
-        
-        current_i = new_i
-
-    return current_i
 
 with open(sys.argv[1], 'r') as fid:
     raw_lines = [line.strip() for line in fid.readlines()]
@@ -82,8 +58,4 @@ while len(lookup_list) > 1:
     map_to_scrunch = lookup_list.pop(1)
     lookup_list[0] = scrunch_maps(lookup_list[0], map_to_scrunch)
 
-print(min(map(lambda entry: entry.start, lookup_list[0].keys())))
-
-# seed_locations = list(map(lambda seed: get_seed_location(seed, lookup_list), initial_seeds))
-# print(seed_locations)
-# print(f'min location = {min(seed_locations)}')
+print(min(lookup_list[0].values()))
