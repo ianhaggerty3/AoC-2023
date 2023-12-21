@@ -1,8 +1,5 @@
 import sys
 
-def reverse_dict(dict):
-    return {v: k for k, v in dict.items()}
-
 def get_seed_location(seed, lookup_list):
     current_i = seed
     for lookup in lookup_list:

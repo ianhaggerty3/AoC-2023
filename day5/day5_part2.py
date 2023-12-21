@@ -1,8 +1,4 @@
 import sys
-from operator import itemgetter
-
-def reverse_dict(dict):
-    return {v: k for k, v in dict.items()}
 
 def scrunch_maps(map1, map2):
     new_map = {}
