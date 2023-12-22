@@ -1,0 +1,4 @@
+43:37 for part 1
+~16 hours for both
+gave up on brute force a night of sleep for part 2, still don't think that my
+solution is in any way guaranteed to be right for other "workflows"
