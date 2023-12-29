@@ -1,0 +1,6 @@
+this one was tough for me, not sure completely why.
+I did the first part at midnight, but didn't track how long it took.
+I did the second part on December 29, and I still feel like I am doing the
+solution incredibly stupidly. May need to check the forums to see what kind
+of shortcuts I missed. May also need an equation solver of some kind to really
+solve this well.
