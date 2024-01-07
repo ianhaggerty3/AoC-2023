@@ -1,0 +1,6 @@
+I didn't really race this one, but did enjoy the challenge.
+I had a vague algorithm in my head for about a week, and was surprised that
+it actually worked once I sat down and coded it.
+I felt that the input parsing took way longer than I thought it would, whereas
+the meat of the algorithm was very fast. It seems like the input parsing/initial
+fall logic should be fast to do, so that would be the first place I optimize.
