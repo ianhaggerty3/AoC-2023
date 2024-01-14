@@ -1,1 +1,4 @@
 44:40 for part 1
+26ish hours for part 2
+Ended up seeing my program complete prior to actually finishing writing
+my optimized solution. Not about to press on fixing my code as I want to be done

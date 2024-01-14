@@ -47,10 +47,12 @@ def traverse_path(start, visited):
         for option in options[1::]:
             traverse_path(option, copy(visited))
         
+        last = current
         current = options[0] if len(options) > 0 else None
         current_token = lines[current[1]][current[0]] if current is not None else None
-
-    results.append(len(visited))
+        
+    if last[1] == len(lines) - 2:
+        results.append(len(visited))
 
 traverse_path(add_tuple(start, direction_map['S']), set([start]))
 
